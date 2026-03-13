@@ -30,42 +30,52 @@ const _: () = {
 
     impl Type for Value {
         fn definition(types: &mut TypeCollection) -> DataType {
-            DataType::Enum(Enum {
-                variants: vec![
-                    ("Null".into(), EnumVariant::unit()),
-                    (
-                        "Bool".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(bool::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "Number".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Number::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "String".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(String::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "Array".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Vec::<Value>::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "Object".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Map::<String, Value>::definition(types)))
-                            .build(),
-                    ),
-                ],
-                attributes: vec![],
-            })
+            DataType::Reference(NamedDataType::init_with_sentinel(
+                vec![],
+                false,
+                types,
+                "serde_json::Value",
+                |types, ndt| {
+                    ndt.set_name(Cow::Borrowed("JsonValue"));
+                    ndt.set_module_path(Cow::Borrowed("serde_json"));
+                    ndt.set_ty(DataType::Enum(Enum {
+                        variants: vec![
+                            ("Null".into(), EnumVariant::unit()),
+                            (
+                                "Bool".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(bool::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "Number".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Number::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "String".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(String::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "Array".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Vec::<Value>::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "Object".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Map::<String, Value>::definition(types)))
+                                    .build(),
+                            ),
+                        ],
+                        attributes: vec![],
+                    }));
+                },
+            ))
         }
     }
 
@@ -834,60 +844,70 @@ const _: () = {
 
     impl Type for Value {
         fn definition(types: &mut TypeCollection) -> DataType {
-            DataType::Enum(Enum {
-                variants: vec![
-                    (
-                        "Point".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(geojson::PointType::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "MultiPoint".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Vec::<geojson::PointType>::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "LineString".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(geojson::LineStringType::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "MultiLineString".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Vec::<geojson::LineStringType>::definition(
-                                types,
-                            )))
-                            .build(),
-                    ),
-                    (
-                        "Polygon".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(geojson::PolygonType::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "MultiPolygon".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Vec::<geojson::PolygonType>::definition(types)))
-                            .build(),
-                    ),
-                    (
-                        "GeometryCollection".into(),
-                        EnumVariant::unnamed()
-                            .field(Field::new(Vec::<Geometry>::definition(types)))
-                            .build(),
-                    ),
-                ],
-                attributes: vec![RuntimeAttribute {
-                    path: String::from("serde"),
-                    kind: RuntimeMeta::List(vec![RuntimeNestedMeta::Meta(RuntimeMeta::Path(
-                        String::from("untagged"),
-                    ))]),
-                }],
-            })
+            DataType::Reference(NamedDataType::init_with_sentinel(
+                vec![],
+                false,
+                types,
+                "geojson::Value",
+                |types, ndt| {
+                    ndt.set_name(Cow::Borrowed("GeoJsonValue"));
+                    ndt.set_module_path(Cow::Borrowed("geojson"));
+                    ndt.set_ty(DataType::Enum(Enum {
+                        variants: vec![
+                            (
+                                "Point".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(geojson::PointType::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "MultiPoint".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Vec::<geojson::PointType>::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "LineString".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(geojson::LineStringType::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "MultiLineString".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Vec::<geojson::LineStringType>::definition(
+                                        types,
+                                    )))
+                                    .build(),
+                            ),
+                            (
+                                "Polygon".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(geojson::PolygonType::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "MultiPolygon".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Vec::<geojson::PolygonType>::definition(types)))
+                                    .build(),
+                            ),
+                            (
+                                "GeometryCollection".into(),
+                                EnumVariant::unnamed()
+                                    .field(Field::new(Vec::<Geometry>::definition(types)))
+                                    .build(),
+                            ),
+                        ],
+                        attributes: vec![RuntimeAttribute {
+                            path: String::from("serde"),
+                            kind: RuntimeMeta::List(vec![RuntimeNestedMeta::Meta(RuntimeMeta::Path(
+                                String::from("untagged"),
+                            ))]),
+                        }],
+                    }));
+                },
+            ))
         }
     }
 
